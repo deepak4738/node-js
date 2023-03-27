@@ -2,13 +2,14 @@ const express = require('express');
 const httpStatus = require('http-status');
 const helmet = require('helmet');
 const xss = require('xss-clean');
-const Sequelize = require("sequelize");
 
 const app = express();
 
 const routes = require('./routes');
 const ApiError = require('./utils/ApiError');
 const config = require('./config/config');
+const sequelize = require('./utils/database');
+const { User, Token } = require('./models');
 const { errorConverter, errorHandler } = require('./middlewares/error');
 
 //set security headers
@@ -37,18 +38,8 @@ app.use(errorConverter);
 app.use(errorHandler);
 
 let server;
-const sequelize = new Sequelize(
-    config.mysql.db,
-    config.mysql.user,
-    config.mysql.password,
-     {
-       host: config.mysql.host,
-       dialect: 'mysql'
-     }
-);
-
 //connect to mysql db
-sequelize.authenticate().then(() => {
+sequelize.sync().then(() => {
     console.log('Connection has been established successfully.');
     server = app.listen(config.port, () => {
         console.log(`Listening to Port: ${config.port}`);
