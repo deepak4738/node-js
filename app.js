@@ -5,7 +5,7 @@ const xss = require('xss-clean');
 
 const app = express();
 
-const routes = require('./routes');
+const routes = require('./routes/index');
 const ApiError = require('./utils/ApiError');
 const config = require('./config/config');
 const sequelize = require('./utils/database');
