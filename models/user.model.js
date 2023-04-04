@@ -1,4 +1,5 @@
 const { Sequelize, DataTypes } = require('sequelize');
+const bcrypt = require('bcrypt');
 const validator = require('validator');
 
 const sequelize = require('../utils/database');
@@ -30,9 +31,6 @@ const userSchema = {
             if (!value.match(/\d/) || !value.match(/[a-zA-Z]/)) {
                 throw new Error('Password must contain at least one letter and one number');
             }
-        },
-        set(value) {
-            this.setDatavalue('password', bcrypt(value));
         }
     },
     role: {
@@ -45,5 +43,24 @@ const userSchema = {
     }
 };
 
-const User = sequelize.define('users', userSchema);
-module.export = User;
+const User = sequelize.define('users', userSchema, {
+    hooks: {
+        beforeCreate: async function(user) {
+            const salt = await bcrypt.genSalt(10);
+            user.password = await bcrypt.hash(user.password, salt);
+        }
+    }
+});
+
+User.IsEmailTaken = async function(email) {
+    const user = await this.findOne({
+                        where: { email: email },
+                    });
+    return !!user;
+}
+
+User.isPasswordMatch = async function(password, currentPassword) {
+    return bcrypt.compare(password, currentPassword);
+}
+
+module.exports = User;
