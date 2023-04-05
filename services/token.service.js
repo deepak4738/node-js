@@ -72,9 +72,39 @@ const generateAuthToken = async(user) => {
       };
 };
 
+const generateResetPasswordToken = async(email) => {
+    const user = await userService.getUserByEmail(email);
+    if(!user){
+        throw new ApiError(httpStatus.NOT_FOUND, 'No user found');
+    }
+    const expires = moment().add(config.jwt.accessExpirationMinutes, 'minutes');
+    const token = generateToken(user.id, expires, tokenTypes.RESET_PASSWORD);
+    await saveToken(token, user.id, expires, tokenTypes.RESET_PASSWORD);
+    return token;
+};
+
+const verifyToken = async (token, type) => {
+    const payload = jwt.verify(token, config.jwt.secret);
+    const tokenDoc = await Token.findOne({
+        where: { 
+            token: token, 
+            type: type, 
+            userId: payload.sub, 
+            blacklisted: false 
+        }
+    });
+    
+    if (!tokenDoc) {
+      throw new Error('Token not found');
+    }
+    return tokenDoc;
+};
+
 
 module.exports = {
     generateToken, 
     saveToken,
-    generateAuthToken
+    generateAuthToken,
+    generateResetPasswordToken,
+    verifyToken
 }

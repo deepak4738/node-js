@@ -15,7 +15,12 @@ const getUserByEmail = async(email) => {
         });
 }
 
+const getUserById = async(id) => {
+    return User.findByPk(id);
+};
+
 module.exports = {
     createUser,
-    getUserByEmail
+    getUserByEmail,
+    getUserById
 };
