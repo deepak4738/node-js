@@ -19,8 +19,14 @@ const getUserById = async(id) => {
     return User.findByPk(id);
 };
 
+const queryUsers = async (filter, options) => {
+    const users = await User.paginate(filter, options);
+    return users;
+};
+
 module.exports = {
     createUser,
     getUserByEmail,
-    getUserById
+    getUserById,
+    queryUsers
 };

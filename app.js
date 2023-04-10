@@ -2,6 +2,8 @@ const express = require('express');
 const httpStatus = require('http-status');
 const helmet = require('helmet');
 const xss = require('xss-clean');
+const cors = require('cors');
+const passport = require('passport');
 
 const app = express();
 
@@ -9,6 +11,7 @@ const routes = require('./routes/index');
 const ApiError = require('./utils/ApiError');
 const config = require('./config/config');
 const sequelize = require('./utils/database');
+const { JwtStrategy } = require('./config/passport');
 const { User, Token } = require('./models');
 const { errorConverter, errorHandler } = require('./middlewares/error');
 
@@ -23,6 +26,14 @@ app.use(express.urlencoded({ extended: true}));
 
 //sanitize request data
 app.use(xss());
+
+// enable cors
+app.use(cors());
+app.options('*', cors());
+
+// jwt authentication
+app.use(passport.initialize());
+passport.use('jwt', JwtStrategy);
 
 app.use('/v1', routes);
 
