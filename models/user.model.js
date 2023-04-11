@@ -58,6 +58,12 @@ const User = sequelize.define('users', userSchema, {
     }
 });
 
+User.prototype.toJSON =  function () {
+    var values = Object.assign({}, this.get());
+    delete values.password;
+    return values;
+}
+
 User.IsEmailTaken = async function(email) {
     const user = await this.findOne({
                         where: { email: email },
