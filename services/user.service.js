@@ -37,8 +37,14 @@ const updateUserById = async(userId, userBody) => {
     if(!user) {
         throw new ApiError(httpStatus.NOT_FOUND, 'User Not found');
     }
-    if(userBody.email && (await User.IsEmailTaken(userBody.email))) {
+    if(userBody.email && (await User.IsEmailTaken(userBody.email, userId))) {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
+    }
+
+    if(userBody.email){
+        toUpdate.push({
+            email: userBody.email
+        });
     }
     if(userBody.name){
         toUpdate.push({
@@ -51,6 +57,7 @@ const updateUserById = async(userId, userBody) => {
         });
         individualHooks = true;
     }
+    console.log(userBody);
     await User.update(
         userBody,
         { where: {id: userId},

@@ -1,4 +1,4 @@
-const { Sequelize, DataTypes } = require('sequelize');
+const { Sequelize, DataTypes, Op } = require('sequelize');
 const bcrypt = require('bcrypt');
 const validator = require('validator');
 
@@ -64,9 +64,12 @@ User.prototype.toJSON =  function () {
     return values;
 }
 
-User.IsEmailTaken = async function(email) {
+User.IsEmailTaken = async function(email, excludeUserid) {
     const user = await this.findOne({
-                        where: { email: email },
+                        where: { 
+                            email: email ,
+                            id: { [Op.ne]: excludeUserid }
+                        }
                     });
     return !!user;
 }
