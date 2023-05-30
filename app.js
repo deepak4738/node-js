@@ -11,9 +11,16 @@ const routes = require('./routes/index');
 const ApiError = require('./utils/ApiError');
 const config = require('./config/config');
 const sequelize = require('./utils/database');
+const morgan = require('./config/morgan');
 const { JwtStrategy } = require('./config/passport');
 const { User, Token } = require('./models');
 const { errorConverter, errorHandler } = require('./middlewares/error');
+
+
+if (config.env !== 'test') {
+    app.use(morgan.successHandler);
+    app.use(morgan.errorHandler);
+}
 
 //set security headers
 app.use(helmet());
